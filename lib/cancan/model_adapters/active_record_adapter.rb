@@ -91,9 +91,9 @@ module CanCan
         elsif @model_class.respond_to?(:where) && @model_class.respond_to?(:joins)
           mergeable_conditions = @rules.select {|rule| rule.unmergeable? }.blank?
           if mergeable_conditions
-            @model_class.where(conditions).includes(joins)
+            outer_join(@model_class.where(conditions), joins)
           else
-            @model_class.where(*(@rules.map(&:conditions))).includes(joins)
+            outer_join(@model_class.where(*(@rules.map(&:conditions))), joins)
           end
         else
           @model_class.scoped(:conditions => conditions, :joins => joins)
@@ -101,6 +101,14 @@ module CanCan
       end
 
       private
+
+      def outer_join(klass, joins)
+        if klass.respond_to?(:outer_joins) # AR outer joins is loaded
+          klass.outer_joins(joins)
+        else
+          #klass.includes(joins)
+        end
+      end
 
       def override_scope
         conditions = @rules.map(&:conditions).compact
