@@ -104,9 +104,9 @@ module CanCan
 
       def outer_join(klass, joins)
         if klass.respond_to?(:outer_joins) # AR outer joins is loaded
-          klass.outer_joins(joins)
+          klass.outer_joins(joins).uniq
         else
-          #klass.includes(joins)
+          klass.includes(joins)
         end
       end
 
